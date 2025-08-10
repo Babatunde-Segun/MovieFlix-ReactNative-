@@ -17,12 +17,11 @@ import {
 export default function Index() {
 	const router = useRouter();
 
-const {
-	data: movies,
-	loading: moviesLoading,
-	error: moviesError,
-} = useFetch(() => fetchMovies({ query: '' }));
-
+	const {
+		data: movies,
+		loading: moviesLoading,
+		error: moviesError,
+	} = useFetch(() => fetchMovies({ query: '' }));
 
 	return (
 		<View className="flex-1 bg-primary">
@@ -67,16 +66,13 @@ const {
 								numColumns={3}
 								columnWrapperStyle={{
 									justifyContent: 'flex-start',
-									gap: 20,
-									paddingRight: 5,
-									marginBottom: 10,
+									gap: 16,
+									marginVertical: 16,
 								}}
-								className="mt-2 pb-32"
+								className="px-2"
 								scrollEnabled={false}
 								data={movies}
-								renderItem={({ item }) => (
-									<MovieCard {...item} cd/>
-								)}
+								renderItem={({ item }) => <MovieCard {...item} />}
 							/>
 						</>
 					</View>
