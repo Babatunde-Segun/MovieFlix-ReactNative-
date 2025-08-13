@@ -4,18 +4,31 @@ import { icons } from '@/constants/icons';
 import { images } from '@/constants/images';
 import { fetchMovies } from '@/services/api';
 import useFetch from '@/services/useFetch';
-import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native';
 
 const Search = () => {
-	const router = useRouter();
+	const [searchQuery, setSearchQuery] = useState('');
 
 	const {
 		data: movies,
 		loading: moviesLoading,
 		error: moviesError,
-	} = useFetch(() => fetchMovies({ query: '' }));
+		refetch: loadMovies,
+		reset,
+	} = useFetch(() => fetchMovies({ query: searchQuery }), false);
+
+	useEffect(() => {
+		const timeoutId = setTimeout(async () => {
+			if (searchQuery.trim()) {
+				await loadMovies();
+			} else {
+				reset();
+			}
+		}, 1000);
+
+		return () => clearTimeout(timeoutId);
+	}, [searchQuery]);
 
 	return (
 		<View className="flex-1 bg-primary">
@@ -44,7 +57,11 @@ const Search = () => {
 						</View>
 
 						<View className="my-5">
-							<SearchBar placeholder="Search movies ..." />
+							<SearchBar
+								value={searchQuery}
+								onChangeText={(text: string) => setSearchQuery(text)}
+								placeholder="Search movies ..."
+							/>
 						</View>
 
 						{moviesLoading && <ActivityIndicator size="large" color="#000ff" />}
@@ -56,14 +73,25 @@ const Search = () => {
 
 						{!moviesLoading &&
 							!moviesError &&
-							'SEARCH TERM'.trim() &&
+							searchQuery.trim() &&
 							movies?.length > 0 && (
 								<Text className="text-xl text-white font-bold">
-									Search Results for {' '}
-									<Text className="text-accent">SEARCH TERM</Text>
+									Search Results for{' '}
+									<Text className="text-accent">{searchQuery}</Text>
 								</Text>
 							)}
 					</>
+				}
+				ListEmptyComponent={
+					!moviesLoading && !moviesError ? (
+						<View>
+							<Text className="text-center text-gray-500">
+								{searchQuery.trim()
+									? 'No results found'
+									: 'Start searching for movies'}
+							</Text>
+						</View>
+					) : null
 				}
 			/>
 		</View>
